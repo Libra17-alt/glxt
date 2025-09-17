@@ -1,0 +1,151 @@
+{
+  "homeInfo": {
+    "title": "首页",
+    "href": "page/home.html"
+  },
+  "logoInfo": {
+    "title": "进销存管理系统",
+	"image": "images/logo.png",
+    "href": ""
+  },
+  "menuInfo": [
+    {
+      "title": "常规管理",
+      "icon": "fa fa-address-book",
+      "href": "",
+      "target": "_self",
+      "child": [
+        {
+          "title": "首页",
+          "href": "page/home.html",
+          "icon": "fa fa-home",
+          "target": "_self"
+        },
+        {
+          "title": "用户管理",
+          "href": "",
+          "icon": "fa fa-group",
+          "target": "_self",
+          "child": [
+          {
+            "title": "添加用户",
+            "href": "user/addUser.html",
+            "icon": "fa fa-plus-square-o",
+            "target": "_self"
+          }, {
+            "title": "查询用户",
+            "href": "findUser.html",
+            "icon": "fa fa-search",
+            "target": "_self"
+          }
+        ]
+        },
+        {
+          "title": "基础信息管理",
+          "href": "",
+          "icon": "fa fa-institution",
+          "target": "_self",
+          "child": [
+            {
+              "title": "商品信息",
+              "href": "page/department/addDept.html",
+              "icon": "fa fa-plus-square-o",
+              "target": "_self"
+            }, {
+              "title": "合作方信息",
+              "href": "page/department/addMajor.html",
+              "icon": "fa fa-plus-circle",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "采购管理",
+          "href": "",
+          "icon": "fa fa-eye",
+          "target": "_self",
+          "child": [
+            {
+              "title": "采购订单",
+              "href": "page/procurement/Purchase Order.html",
+              "icon": "fa fa-plus-circle",
+              "target": "_self"
+            }, {
+              "title": "入库管理",
+              "href": "page/procurement/Inventory Management.html",
+              "icon": "fa fa-search-plus",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "销售管理",
+          "href": "",
+          "icon": "fa fa-trophy",
+          "target": "_self",
+          "child": [
+            {
+              "title": "销售订单",
+              "href": "page/competition/sales-orders.html",
+              "icon": "fa fa-plus-square-o",
+              "target": "_self"
+            }, {
+              "title": "出库管理",
+              "href": "page/competition/sales-shipments.html",
+              "icon": "fa fa-search",
+              "target": "_self"
+            }, {
+              "title": "销售退货",
+              "href": "page/competition/sales-returns.html",
+              "icon": "fa fa-search",
+              "target": "_self"
+			  }
+			    ]
+			  },
+			  {
+          "title": "财务统计管理",
+          "href": "",
+          "icon": "fa fa-paw",
+          "target": "_self",
+          "child": [
+            {
+              "title": "收支记录",
+              "href": "page/credit/finance-records.html",
+              "icon": "fa fa-plus-circle",
+              "target": "_self"
+            }, {
+              "title": "数据报表",
+              "href": "page/credit/finance-reports.html",
+              "icon": "fa fa-bar-chart",
+              "target": "_self"
+            }
+          ]
+        },
+		{
+		  "title": "成员管理",
+		  "href": "",
+		  "icon": "fa fa-male",
+		  "target": "_self",
+		  "child": [
+		    {
+		      "title": "添加成员",
+		      "href": "page/member/addMember.html",
+		      "icon": "fa fa-plus-circle",
+		      "target": "_self"
+		    }, {
+		      "title": "查询成员",
+		      "href": "page/member/findMember.html",
+		      "icon": "fa fa-search-plus",
+		      "target": "_self"
+		    }, {
+		      "title": "成员统计",
+		      "href": "page/member/statisMember.html",
+		      "icon": "fa fa-bar-chart",
+		      "target": "_self"
+		    }
+          ]
+        }
+      ]
+    }
+  ]
+}
