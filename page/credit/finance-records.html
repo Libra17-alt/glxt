@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>收支记录</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- Tailwind配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2563eb',
+            success: '#10b981',
+            warning: '#f59e0b',
+            danger: '#ef4444',
+            neutral: '#64748b',
+            income: '#10b981',
+            expense: '#ef4444'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto { content-visibility: auto; }
+      .transition-basic { transition: all 0.2s ease; }
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 font-sans text-gray-800 min-h-screen">
+  <!-- 主体内容 -->
+  <div class="container mx-auto px-4 py-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+      <div>
+        <h2 class="text-2xl font-semibold">收支记录</h2>
+      </div>
+      
+      <div class="flex mt-4 md:mt-0 space-x-3">
+        <a href="finance-reports.html" class="px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-basic flex items-center">
+          <i class="fa fa-bar-chart mr-2"></i> 数据报表
+        </a>
+        <button id="add-record-btn" class="px-4 py-2 bg-primary text-white rounded text-sm hover:bg-primary/90 transition-basic flex items-center">
+          <i class="fa fa-plus mr-2"></i> 新增记录
+        </button>
+      </div>
+    </div>
+    
+    <!-- 数据概览卡片 -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-income">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-500 text-sm">本月总收入</p>
+            <h3 class="text-2xl font-semibold mt-1">¥286,500.00</h3>
+          </div>
+          <div class="w-12 h-12 rounded-full bg-income/10 flex items-center justify-center text-income">
+            <i class="fa fa-arrow-down"></i>
+          </div>
+        </div>
+        <div class="mt-3 text-xs text-success flex items-center">
+          <i class="fa fa-caret-up mr-1"></i> 较上月增长 12.5%
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-expense">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-500 text-sm">本月总支出</p>
+            <h3 class="text-2xl font-semibold mt-1">¥198,200.00</h3>
+          </div>
+          <div class="w-12 h-12 rounded-full bg-expense/10 flex items-center justify-center text-expense">
+            <i class="fa fa-arrow-up"></i>
+          </div>
+        </div>
+        <div class="mt-3 text-xs text-danger flex items-center">
+          <i class="fa fa-caret-up mr-1"></i> 较上月增长 8.3%
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 border-primary">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-500 text-sm">本月净收益</p>
+            <h3 class="text-2xl font-semibold mt-1">¥88,300.00</h3>
+          </div>
+          <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+            <i class="fa fa-balance-scale"></i>
+          </div>
+        </div>
+        <div class="mt-3 text-xs text-success flex items-center">
+          <i class="fa fa-caret-up mr-1"></i> 较上月增长 21.7%
+        </div>
+      </div>
+    </div>
+    
+    <!-- 收支筛选 -->
+    <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
+      <div class="flex flex-col md:flex-row md:items-center gap-4">
+        <div class="flex flex-wrap gap-2">
+          <button class="px-3 py-1 bg-primary/10 text-primary rounded text-sm">全部记录</button>
+          <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200 transition-basic">销售收款</button>
+          <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200 transition-basic">采购付款</button>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full md:w-auto flex-grow md:flex-grow-0">
+          <div class="relative">
+            <input type="text" placeholder="搜索订单号..." class="w-full pl-9 pr-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+            <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+          </div>
+          <div>
+            <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+          </div>
+          <div>
+            <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+          </div>
+        </div>
+        
+        <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200 transition-basic ml-auto">
+          筛选
+        </button>
+      </div>
+    </div>
+    
+    <!-- 收支记录列表 -->
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-200">
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">记录编号</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">关联订单</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">往来单位</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">收支类型</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">金额</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">支付方式</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">日期</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            <tr class="hover:bg-gray-50 transition-basic">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">FIN-202405032</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">SO-202405018</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">北京某科技公司</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-income/10 text-income">销售收款</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-income">¥45,800.00</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">银行转账</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">2024-05-12</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <button class="text-primary hover:text-primary/80 transition-basic" title="查看">
+                  <i class="fa fa-eye"></i>
+                </button>
+              </td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-basic">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">FIN-202405031</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">PO-202405009</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">深圳某供应商</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-expense/10 text-expense">采购付款</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-expense">¥28,500.00</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">银行转账</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">2024-05-11</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <button class="text-primary hover:text-primary/80 transition-basic" title="查看">
+                  <i class="fa fa-eye"></i>
+                </button>
+              </td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-basic">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">FIN-202405030</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">SO-202405017</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">上海某贸易公司</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-income/10 text-income">销售收款</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-income">¥15,600.00</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">现金</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">2024-05-10</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <button class="text-primary hover:text-primary/80 transition-basic" title="查看">
+                  <i class="fa fa-eye"></i>
+                </button>
+              </td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-basic">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">FIN-202405029</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">PO-202405008</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">广州某厂商</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-expense/10 text-expense">采购付款</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-expense">¥32,100.00</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">承兑汇票</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">2024-05-09</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <button class="text-primary hover:text-primary/80 transition-basic" title="查看">
+                  <i class="fa fa-eye"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- 分页 -->
+      <div class="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div class="text-sm text-gray-500 mb-4 sm:mb-0">
+          显示 1 到 4 条，共 86 条记录
+        </div>
+        <div class="flex space-x-1">
+          <button class="px-3 py-1 rounded border border-gray-300 bg-white text-gray-400 cursor-not-allowed text-sm">
+            <i class="fa fa-angle-left"></i>
+          </button>
+          <button class="px-3 py-1 rounded border border-primary bg-primary text-white text-sm">1</button>
+          <button class="px-3 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:border-primary hover:text-primary text-sm transition-basic">2</button>
+          <button class="px-3 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:border-primary hover:text-primary text-sm transition-basic">3</button>
+          <button class="px-3 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:border-primary hover:text-primary text-sm transition-basic">
+            <i class="fa fa-angle-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 新增收支记录模态框 -->
+  <div id="add-record-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div class="p-5 border-b border-gray-200 flex items-center justify-between">
+        <h3 class="text-lg font-semibold">新增收支记录</h3>
+        <button id="close-record-modal" class="text-gray-500 hover:text-gray-700 transition-basic">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="p-5">
+        <form id="add-record-form">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">记录编号</label>
+              <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" value="FIN-202405033" readonly>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">收支类型 <span class="text-danger">*</span></label>
+              <select class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" id="record-type">
+                <option value="">请选择类型</option>
+                <option value="income">销售收款</option>
+                <option value="expense">采购付款</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">关联订单号 <span class="text-danger">*</span></label>
+              <select class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" id="related-order">
+                <option value="">请选择订单</option>
+                <option value="SO-202405019" data-type="income" data-company="杭州某企业">SO-202405019</option>
+                <option value="PO-202405010" data-type="expense" data-company="北京供应商">PO-202405010</option>
+                <option value="SO-202405020" data-type="income" data-company="成都某公司">SO-202405020</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">往来单位</label>
+              <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded text-sm bg-gray-50" id="company-info" readonly>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">金额 (元) <span class="text-danger">*</span></label>
+              <input type="number" min="0.01" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">支付方式 <span class="text-danger">*</span></label>
+              <select class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+                <option value="">请选择支付方式</option>
+                <option value="transfer">银行转账</option>
+                <option value="cash">现金</option>
+                <option value="check">支票</option>
+                <option value="acceptance">承兑汇票</option>
+                <option value="other">其他</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">收支日期 <span class="text-danger">*</span></label>
+              <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">经手人 <span class="text-danger">*</span></label>
+              <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+            </div>
+          </div>
+          
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-1">备注</label>
+            <textarea rows="2" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" placeholder="请输入备注信息..."></textarea>
+          </div>
+          
+          <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+            <button type="button" id="cancel-record-btn" class="px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-basic">取消</button>
+            <button type="submit" class="px-4 py-2 bg-primary text-white rounded text-sm hover:bg-primary/90 transition-basic">保存记录</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 查看收支记录详情模态框 -->
+  <div id="view-record-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div class="p-5 border-b border-gray-200 flex items-center justify-between">
+        <h3 class="text-lg font-semibold">收支记录详情</h3>
+        <button id="close-view-modal" class="text-gray-500 hover:text-gray-700 transition-basic">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="p-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <p class="text-sm text-gray-500">记录编号</p>
+            <p class="text-sm font-medium">FIN-202405032</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">收支类型</p>
+            <p class="text-sm font-medium text-income">销售收款</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">关联订单号</p>
+            <p class="text-sm font-medium">SO-202405018</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">往来单位</p>
+            <p class="text-sm font-medium">北京某科技公司</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">金额</p>
+            <p class="text-sm font-medium text-income">¥45,800.00</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">支付方式</p>
+            <p class="text-sm font-medium">银行转账</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">收支日期</p>
+            <p class="text-sm font-medium">2024-05-12</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">经手人</p>
+            <p class="text-sm font-medium">张财务</p>
+          </div>
+        </div>
+        
+        <div class="mb-6">
+          <p class="text-sm text-gray-500 mb-1">备注</p>
+          <p class="text-sm p-3 bg-gray-50 rounded border border-gray-200">收到北京某科技公司货款，订单SO-202405018全部结清</p>
+        </div>
+        
+        <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+          <button id="print-record-btn" class="px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-basic flex items-center">
+            <i class="fa fa-print mr-2"></i> 打印记录
+          </button>
+          <button id="close-detail-btn" class="px-4 py-2 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200 transition-basic">关闭</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- JavaScript 交互逻辑 -->
+  <script>
+    // DOM 元素获取
+    const addRecordBtn = document.getElementById('add-record-btn');
+    const addRecordModal = document.getElementById('add-record-modal');
+    const closeRecordModal = document.getElementById('close-record-modal');
+    const cancelRecordBtn = document.getElementById('cancel-record-btn');
+    const recordType = document.getElementById('record-type');
+    const relatedOrder = document.getElementById('related-order');
+    const companyInfo = document.getElementById('company-info');
+    const viewRecordBtns = document.querySelectorAll('[title="查看"]');
+    const viewRecordModal = document.getElementById('view-record-modal');
+    const closeViewModal = document.getElementById('close-view-modal');
+    const closeDetailBtn = document.getElementById('close-detail-btn');
+    
+    // 打开新增收支记录模态框
+    addRecordBtn.addEventListener('click', () => {
+      addRecordModal.classList.remove('hidden');
+      addRecordModal.classList.add('flex');
+    });
+    
+    // 关闭新增收支记录模态框
+    function closeRecordModalFunc() {
+      addRecordModal.classList.add('hidden');
+      addRecordModal.classList.remove('flex');
+    }
+    closeRecordModal.addEventListener('click', closeRecordModalFunc);
+    cancelRecordBtn.addEventListener('click', closeRecordModalFunc);
+    
+    // 选择订单后自动填充单位信息
+    relatedOrder.addEventListener('change', () => {
+      const selectedOption = relatedOrder.options[relatedOrder.selectedIndex];
+      companyInfo.value = selectedOption.getAttribute('data-company') || '';
+      
+      // 自动选择对应的收支类型
+      const type = selectedOption.getAttribute('data-type');
+      if (type) {
+        recordType.value = type;
+      }
+    });
+    
+    // 打开查看收支记录模态框
+    viewRecordBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        viewRecordModal.classList.remove('hidden');
+        viewRecordModal.classList.add('flex');
+      });
+    });
+    
+    // 关闭查看收支记录模态框
+    function closeViewModalFunc() {
+      viewRecordModal.classList.add('hidden');
+      viewRecordModal.classList.remove('flex');
+    }
+    closeViewModal.addEventListener('click', closeViewModalFunc);
+    closeDetailBtn.addEventListener('click', closeViewModalFunc);
+    
+    // 表单提交（模拟）
+    document.getElementById('add-record-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      alert('收支记录保存成功');
+      closeRecordModalFunc();
+    });
+  </script>
+</body>
+</html>

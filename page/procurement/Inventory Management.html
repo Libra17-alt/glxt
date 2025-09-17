@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>入库管理 - 进销存系统</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- 配置Tailwind自定义主题 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2563eb',
+            success: '#10b981',
+            warning: '#f59e0b',
+            danger: '#ef4444',
+            info: '#3b82f6',
+            neutral: '#64748b'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .transition-basic {
+        transition: all 0.2s ease;
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 font-sans text-gray-800 min-h-screen">
+  
+  <!-- 页面标题和导航 -->
+  <div class="container mx-auto px-4 py-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+      <div>
+        <h2 class="text-2xl font-semibold">入库管理</h2>
+      </div>
+      
+      <div class="flex mt-4 md:mt-0 space-x-3">
+        <a href="addMember.html" class="px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-basic flex items-center">
+          <i class="fa fa-file-text-o mr-2"></i> 采购订单
+        </a>
+        <button id="create-stock-in-btn" class="px-4 py-2 bg-success text-white rounded text-sm hover:bg-success/90 transition-basic flex items-center">
+          <i class="fa fa-plus mr-2"></i> 新建入库单
+        </button>
+      </div>
+    </div>
+    
+    <!-- 入库单筛选 -->
+    <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex flex-wrap gap-2">
+          <button class="px-3 py-1 bg-primary/10 text-primary rounded text-sm">全部</button>
+          <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200 transition-basic">待入库</button>
+          <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200 transition-basic">部分入库</button>
+          <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200 transition-basic">已完成</button>
+        </div>
+        
+        <div class="relative w-full md:w-64">
+          <input type="text" placeholder="搜索入库单号/订单号..." class="w-full pl-9 pr-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+          <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 入库单列表 -->
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-200">
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">入库单号</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">关联订单号</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">供应商</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">入库日期</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">入库数量</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            <tr class="hover:bg-gray-50 transition-basic">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">IN-202305001</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">PO-202305002</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">上海办公用品贸易公司</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">2023-05-16</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">8/12</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-info/10 text-info">部分入库</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <div class="flex space-x-3">
+                  <button class="text-primary hover:text-primary/80 transition-basic" title="查看">
+                    <i class="fa fa-eye"></i>
+                  </button>
+                  <button class="text-success hover:text-success/80 transition-basic" title="继续入库">
+                    <i class="fa fa-plus-circle"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-basic">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">IN-202305002</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">PO-202305004</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">深圳科技配件有限公司</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">-</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">0/8</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-warning/10 text-warning">待入库</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <div class="flex space-x-3">
+                  <button class="text-primary hover:text-primary/80 transition-basic" title="查看">
+                    <i class="fa fa-eye"></i>
+                  </button>
+                  <button class="text-success hover:text-success/80 transition-basic" title="确认入库">
+                    <i class="fa fa-check-circle"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-basic">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">IN-202304028</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">PO-202304015</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">北京电子科技有限公司</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">2023-05-01</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">6/6</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-success/10 text-success">已完成</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <div class="flex space-x-3">
+                  <button class="text-primary hover:text-primary/80 transition-basic" title="查看">
+                    <i class="fa fa-eye"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-basic">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">IN-202304027</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">PO-202304012</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">广州数码设备有限公司</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">2023-04-28</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">3/3</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-success/10 text-success">已完成</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <div class="flex space-x-3">
+                  <button class="text-primary hover:text-primary/80 transition-basic" title="查看">
+                    <i class="fa fa-eye"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-basic">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">IN-202304026</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">PO-202304010</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">杭州网络设备有限公司</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">2023-04-25</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">4/4</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-success/10 text-success">已完成</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <div class="flex space-x-3">
+                  <button class="text-primary hover:text-primary/80 transition-basic" title="查看">
+                    <i class="fa fa-eye"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- 分页 -->
+      <div class="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div class="text-sm text-gray-500 mb-4 sm:mb-0">
+          显示 1 到 5 条，共 18 条记录
+        </div>
+        <div class="flex space-x-1">
+          <button class="px-3 py-1 rounded border border-gray-300 bg-white text-gray-400 cursor-not-allowed text-sm">
+            <i class="fa fa-angle-left"></i>
+          </button>
+          <button class="px-3 py-1 rounded border border-primary bg-primary text-white text-sm">1</button>
+          <button class="px-3 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:border-primary hover:text-primary text-sm transition-basic">2</button>
+          <button class="px-3 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:border-primary hover:text-primary text-sm transition-basic">3</button>
+          <button class="px-3 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:border-primary hover:text-primary text-sm transition-basic">
+            <i class="fa fa-angle-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 新建入库单模态框 -->
+  <div id="stock-in-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+      <div class="p-5 border-b border-gray-200 flex items-center justify-between">
+        <h3 class="text-lg font-semibold">创建入库单</h3>
+        <button id="close-stock-in-modal" class="text-gray-500 hover:text-gray-700 transition-basic">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="p-5">
+        <form id="stock-in-form">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">入库单号</label>
+              <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" value="IN-202305003" readonly>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">入库日期 <span class="text-danger">*</span></label>
+              <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" value="2023-05-17">
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">关联订单号 <span class="text-danger">*</span></label>
+              <select class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+                <option value="">请选择采购订单</option>
+                <option value="PO-202305002">PO-202305002 - 上海办公用品贸易公司</option>
+                <option value="PO-202305004">PO-202305004 - 深圳科技配件有限公司</option>
+                <option value="PO-202305001">PO-202305001 - 北京电子科技有限公司</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">库管员 <span class="text-danger">*</span></label>
+              <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" value="张三" readonly>
+            </div>
+          </div>
+          
+          <div class="mb-5">
+            <label class="block text-sm font-medium text-gray-700 mb-1">入库备注</label>
+            <textarea rows="2" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" placeholder="请输入入库备注信息..."></textarea>
+          </div>
+          
+          <div class="mb-5">
+            <h4 class="font-medium text-sm mb-3">入库商品明细</h4>
+            
+            <div class="border border-gray-200 rounded overflow-hidden">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="bg-gray-50">
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">商品名称</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">规格型号</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">单位</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">订单数量</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">已入库数量</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">本次入库数量</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="border-t border-gray-200">
+                    <td class="px-4 py-3">笔记本电脑</td>
+                    <td class="px-4 py-3">ThinkPad X1</td>
+                    <td class="px-4 py-3">台</td>
+                    <td class="px-4 py-3">5</td>
+                    <td class="px-4 py-3">0</td>
+                    <td class="px-4 py-3">
+                      <input type="number" min="1" max="5" class="w-20 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+                    </td>
+                  </tr>
+                  <tr class="border-t border-gray-200">
+                    <td class="px-4 py-3">打印机</td>
+                    <td class="px-4 py-3">HP LaserJet Pro</td>
+                    <td class="px-4 py-3">台</td>
+                    <td class="px-4 py-3">3</td>
+                    <td class="px-4 py-3">0</td>
+                    <td class="px-4 py-3">
+                      <input type="number" min="1" max="3" class="w-20 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <div class="flex justify-end space-x-3">
+            <button type="button" id="cancel-stock-in-btn" class="px-4 py-2 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50 transition-basic">取消</button>
+            <button type="submit" class="px-4 py-2 bg-success text-white rounded text-sm hover:bg-success/90 transition-basic">确认入库</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 新建入库单模态框控制
+    const stockInModal = document.getElementById('stock-in-modal');
+    
+    document.getElementById('create-stock-in-btn').addEventListener('click', () => {
+      stockInModal.classList.remove('hidden');
+      stockInModal.classList.add('flex');
+    });
+    
+    document.getElementById('close-stock-in-modal').addEventListener('click', () => {
+      stockInModal.classList.add('hidden');
+      stockInModal.classList.remove('flex');
+    });
+    
+    document.getElementById('cancel-stock-in-btn').addEventListener('click', () => {
+      stockInModal.classList.add('hidden');
+      stockInModal.classList.remove('flex');
+    });
+    
+    // 点击模态框外部关闭
+    stockInModal.addEventListener('click', (e) => {
+      if (e.target === stockInModal) {
+        stockInModal.classList.add('hidden');
+        stockInModal.classList.remove('flex');
+      }
+    });
+    
+    // 表单提交处理
+    document.getElementById('stock-in-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      alert('入库单已确认，库存已更新！');
+      stockInModal.classList.add('hidden');
+      stockInModal.classList.remove('flex');
+    });
+  </script>
+</body>
+</html>

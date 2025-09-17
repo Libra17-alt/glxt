@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数据报表</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  
+  <!-- Tailwind配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2563eb',
+            success: '#10b981',
+            warning: '#f59e0b',
+            danger: '#ef4444',
+            neutral: '#64748b',
+            income: '#10b981',
+            expense: '#ef4444'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto { content-visibility: auto; }
+      .transition-basic { transition: all 0.2s ease; }
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 font-sans text-gray-800 min-h-screen">
+    <!-- 主体内容 -->
+  <div class="container mx-auto px-4 py-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+      <div>
+        <h2 class="text-2xl font-semibold">数据报表</h2>
+      </div>
+      
+      <div class="flex mt-4 md:mt-0 space-x-3">
+        <a href="finance-records.html" class="px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-basic flex items-center">
+          <i class="fa fa-money mr-2"></i> 收支记录
+        </a>
+        <button id="refresh-report-btn" class="px-4 py-2 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200 transition-basic flex items-center">
+          <i class="fa fa-refresh mr-2"></i> 刷新数据
+        </button>
+      </div>
+    </div>
+    
+    <!-- 报表筛选 -->
+    <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
+      <div class="flex flex-col md:flex-row md:items-center gap-4">
+        <div class="flex flex-wrap gap-2">
+          <button class="px-3 py-1 bg-primary/10 text-primary rounded text-sm">全部报表</button>
+          <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200 transition-basic">采购汇总表</button>
+          <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200 transition-basic">销售汇总表</button>
+          <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200 transition-basic">库存明细表</button>
+          <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200 transition-basic">收支报表</button>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full md:w-auto flex-grow md:flex-grow-0">
+          <div>
+            <select class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+              <option value="month">按月份</option>
+              <option value="quarter">按季度</option>
+              <option value="year">按年度</option>
+              <option value="custom">自定义</option>
+            </select>
+          </div>
+          <div>
+            <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" value="2024-01-01">
+          </div>
+          <div>
+            <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" value="2024-05-31">
+          </div>
+        </div>
+        
+        <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200 transition-basic ml-auto">
+          生成报表
+        </button>
+      </div>
+    </div>
+    
+    <!-- 数据可视化图表 -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <!-- 收支趋势图 -->
+      <div class="bg-white rounded-lg shadow-sm p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-base font-semibold">收支趋势分析</h3>
+          <div class="flex space-x-2">
+            <button class="text-xs px-2 py-1 bg-primary/10 text-primary rounded">月度</button>
+            <button class="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-basic">季度</button>
+            <button class="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-basic">年度</button>
+          </div>
+        </div>
+        <div class="h-64">
+          <canvas id="revenueExpenseChart"></canvas>
+        </div>
+      </div>
+      
+      <!-- 销售采购对比图 -->
+      <div class="bg-white rounded-lg shadow-sm p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-base font-semibold">销售采购对比</h3>
+          <div class="flex space-x-2">
+            <button class="text-xs px-2 py-1 bg-primary/10 text-primary rounded">金额</button>
+            <button class="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-basic">数量</button>
+          </div>
+        </div>
+        <div class="h-64">
+          <canvas id="salesPurchaseChart"></canvas>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 报表列表 -->
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div class="p-5 border-b border-gray-200">
+        <h3 class="text-base font-semibold">可用报表</h3>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-0 divide-y divide-gray-200">
+        <!-- 采购汇总表 -->
+        <div class="p-5 hover:bg-gray-50 transition-basic flex items-center justify-between">
+          <div class="flex items-start">
+            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary mr-4 flex-shrink-0">
+              <i class="fa fa-shopping-cart"></i>
+            </div>
+            <div>
+              <h4 class="font-medium">采购汇总表</h4>
+              <p class="text-sm text-gray-500 mt-1">按时间/供应商统计采购金额与数量</p>
+              <div class="flex items-center mt-2 text-xs text-gray-500">
+                <span class="flex items-center mr-4">
+                  <i class="fa fa-refresh mr-1"></i> 2024-05-31 更新
+                </span>
+                <span class="flex items-center">
+                  <i class="fa fa-file-excel-o mr-1 text-success"></i> 支持Excel导出
+                </span>
+              </div>
+            </div>
+          </div>
+          <a href="report-detail.html?type=purchase" class="px-3 py-1.5 bg-primary/10 text-primary rounded text-sm hover:bg-primary/20 transition-basic flex items-center">
+            查看详情 <i class="fa fa-angle-right ml-1"></i>
+          </a>
+        </div>
+        
+        <!-- 销售汇总表 -->
+        <div class="p-5 hover:bg-gray-50 transition-basic flex items-center justify-between">
+          <div class="flex items-start">
+            <div class="w-10 h-10 rounded-full bg-income/10 flex items-center justify-center text-income mr-4 flex-shrink-0">
+              <i class="fa fa-line-chart"></i>
+            </div>
+            <div>
+              <h4 class="font-medium">销售汇总表</h4>
+              <p class="text-sm text-gray-500 mt-1">按时间/客户统计销售金额与数量</p>
+              <div class="flex items-center mt-2 text-xs text-gray-500">
+                <span class="flex items-center mr-4">
+                  <i class="fa fa-refresh mr-1"></i> 2024-05-31 更新
+                </span>
+                <span class="flex items-center">
+                  <i class="fa fa-file-excel-o mr-1 text-success"></i> 支持Excel导出
+                </span>
+              </div>
+            </div>
+          </div>
+          <a href="report-detail.html?type=sales" class="px-3 py-1.5 bg-primary/10 text-primary rounded text-sm hover:bg-primary/20 transition-basic flex items-center">
+            查看详情 <i class="fa fa-angle-right ml-1"></i>
+          </a>
+        </div>
+        
+        <!-- 库存明细表 -->
+        <div class="p-5 hover:bg-gray-50 transition-basic flex items-center justify-between">
+          <div class="flex items-start">
+            <div class="w-10 h-10 rounded-full bg-warning/10 flex items-center justify-center text-warning mr-4 flex-shrink-0">
+              <i class="fa fa-cubes"></i>
+            </div>
+            <div>
+              <h4 class="font-medium">库存明细表</h4>
+              <p class="text-sm text-gray-500 mt-1">展示所有商品当前库存数量与价值</p>
+              <div class="flex items-center mt-2 text-xs text-gray-500">
+                <span class="flex items-center mr-4">
+                  <i class="fa fa-refresh mr-1"></i> 2024-05-31 更新
+                </span>
+                <span class="flex items-center">
+                  <i class="fa fa-file-excel-o mr-1 text-success"></i> 支持Excel导出
+                </span>
+              </div>
+            </div>
+          </div>
+          <a href="report-detail.html?type=inventory" class="px-3 py-1.5 bg-primary/10 text-primary rounded text-sm hover:bg-primary/20 transition-basic flex items-center">
+            查看详情 <i class="fa fa-angle-right ml-1"></i>
+          </a>
+        </div>
+        
+        <!-- 收支报表 -->
+        <div class="p-5 hover:bg-gray-50 transition-basic flex items-center justify-between">
+          <div class="flex items-start">
+            <div class="w-10 h-10 rounded-full bg-expense/10 flex items-center justify-center text-expense mr-4 flex-shrink-0">
+              <i class="fa fa-money"></i>
+            </div>
+            <div>
+              <h4 class="font-medium">收支报表</h4>
+              <p class="text-sm text-gray-500 mt-1">统计指定时间段内总收入、总支出与利润</p>
+              <div class="flex items-center mt-2 text-xs text-gray-500">
+                <span class="flex items-center mr-4">
+                  <i class="fa fa-refresh mr-1"></i> 2024-05-31 更新
+                </span>
+                <span class="flex items-center">
+                  <i class="fa fa-file-excel-o mr-1 text-success"></i> 支持Excel导出
+                </span>
+              </div>
+            </div>
+          </div>
+          <a href="report-detail.html?type=finance" class="px-3 py-1.5 bg-primary/10 text-primary rounded text-sm hover:bg-primary/20 transition-basic flex items-center">
+            查看详情 <i class="fa fa-angle-right ml-1"></i>
+          </a>
+        </div>
+      </div>
+      
+      <!-- 历史报表 -->
+      <div class="p-5 border-t border-gray-200">
+        <h3 class="text-base font-semibold mb-4">历史报表</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="bg-gray-50 border-b border-gray-200">
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">报表名称</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">生成时间</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">时间范围</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">生成人</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <tr class="hover:bg-gray-50 transition-basic">
+                <td class="px-6 py-3 whitespace-nowrap text-sm">4月销售汇总表</td>
+                <td class="px-6 py-3 whitespace-nowrap text-sm">2024-04-30 16:23</td>
+                <td class="px-6 py-3 whitespace-nowrap text-sm">2024-04-01 至 2024-04-30</td>
+                <td class="px-6 py-3 whitespace-nowrap text-sm">张财务</td>
+                <td class="px-6 py-3 whitespace-nowrap text-sm">
+                  <div class="flex space-x-3">
+                    <a href="#" class="text-primary hover:text-primary/80 transition-basic" title="查看">
+                      <i class="fa fa-eye"></i>
+                    </a>
+                    <a href="#" class="text-success hover:text-success/80 transition-basic" title="下载">
+                      <i class="fa fa-download"></i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              <tr class="hover:bg-gray-50 transition-basic">
+                <td class="px-6 py-3 whitespace-nowrap text-sm">第一季度收支报表</td>
+                <td class="px-6 py-3 whitespace-nowrap text-sm">2024-03-31 15:47</td>
+                <td class="px-6 py-3 whitespace-nowrap text-sm">2024-01-01 至 2024-03-31</td>
+                <td class="px-6 py-3 whitespace-nowrap text-sm">张财务</td>
+                <td class="px-6 py-3 whitespace-nowrap text-sm">
+                  <div class="flex space-x-3">
+                    <a href="#" class="text-primary hover:text-primary/80 transition-basic" title="查看">
+                      <i class="fa fa-eye"></i>
+                    </a>
+                    <a href="#" class="text-success hover:text-success/80 transition-basic" title="下载">
+                      <i class="fa fa-download"></i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- JavaScript 图表初始化 -->
+  <script>
+    // 页面加载完成后初始化图表
+    document.addEventListener('DOMContentLoaded', function() {
+      // 收支趋势图表
+      const revenueExpenseCtx = document.getElementById('revenueExpenseChart').getContext('2d');
+      const revenueExpenseChart = new Chart(revenueExpenseCtx, {
+        type: 'line',
+        data: {
+          labels: ['1月', '2月', '3月', '4月', '5月'],
+          datasets: [
+            {
+              label: '收入',
+              data: [210000, 235000, 248000, 265000, 286500],
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              tension: 0.3,
+              fill: true
+            },
+            {
+              label: '支出',
+              data: [150000, 168000, 175000, 189000, 198200],
+              borderColor: '#ef4444',
+              backgroundColor: 'rgba(239, 68, 68, 0.1)',
+              tension: 0.3,
+              fill: true
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) {
+                  return '¥' + value.toLocaleString();
+                }
+              }
+            }
+          }
+        }
+      });
+      
+      // 销售采购对比图表
+      const salesPurchaseCtx = document.getElementById('salesPurchaseChart').getContext('2d');
+      const salesPurchaseChart = new Chart(salesPurchaseCtx, {
+        type: 'bar',
+        data: {
+          labels: ['1月', '2月', '3月', '4月', '5月'],
+          datasets: [
+            {
+              label: '销售额',
+              data: [210000, 235000, 248000, 265000, 286500],
+              backgroundColor: '#10b981'
+            },
+            {
+              label: '采购额',
+              data: [150000, 168000, 175000, 189000, 198200],
+              backgroundColor: '#ef4444'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) {
+                  return '¥' + value.toLocaleString();
+                }
+              }
+            }
+          }
+        }
+      });
+      
+      // 刷新数据按钮效果
+      document.getElementById('refresh-report-btn').addEventListener('click', function() {
+        this.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> 刷新中...';
+        
+        // 模拟数据刷新
+        setTimeout(() => {
+          this.innerHTML = '<i class="fa fa-refresh mr-2"></i> 刷新数据';
+          alert('报表数据已更新至最新状态');
+        }, 1500);
+      });
+    });
+  </script>
+</body>
+</html>

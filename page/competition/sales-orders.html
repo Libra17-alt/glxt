@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>销售订单</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2563eb',
+            success: '#10b981',
+            warning: '#f59e0b',
+            danger: '#ef4444',
+            neutral: '#64748b'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .transition-basic {
+        transition: all 0.2s ease;
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 font-sans text-gray-800 min-h-screen">
+ 
+  <!-- 页面标题和导航 -->
+  <div class="container mx-auto px-4 py-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+      <div>
+        <h2 class="text-2xl font-semibold">销售订单管理</h2>
+      </div>
+      
+      <div class="flex mt-4 md:mt-0 space-x-3">
+        <a href="sales-shipments.html" class="px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-basic flex items-center">
+          <i class="fa fa-truck mr-2"></i> 出库管理
+        </a>
+        <a href="sales-returns.html" class="px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-basic flex items-center">
+          <i class="fa fa-undo mr-2"></i> 退货管理
+        </a>
+        <button id="create-order-btn" class="px-4 py-2 bg-primary text-white rounded text-sm hover:bg-primary/90 transition-basic flex items-center">
+          <i class="fa fa-plus mr-2"></i> 新建订单
+        </button>
+      </div>
+    </div>
+    
+    <!-- 订单筛选 -->
+    <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex flex-wrap gap-2">
+          <button class="px-3 py-1 bg-primary/10 text-primary rounded text-sm">全部</button>
+          <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200 transition-basic">待审核</button>
+          <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200 transition-basic">已审核</button>
+          <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200 transition-basic">已出库</button>
+          <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200 transition-basic">已取消</button>
+        </div>
+        
+        <div class="relative w-full md:w-64">
+          <input type="text" placeholder="搜索订单号/客户..." class="w-full pl-9 pr-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+          <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 订单列表 -->
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-200">
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">订单编号</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">客户</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">订单日期</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">交货日期</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">总金额</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            <tr class="hover:bg-gray-50 transition-basic">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">SO-202305001</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">北京某科技公司</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">2023-05-12</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">2023-05-15</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">¥45,800.00</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-success/10 text-success">已审核</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <div class="flex space-x-3">
+                  <button class="text-primary hover:text-primary/80 transition-basic" title="查看">
+                    <i class="fa fa-eye"></i>
+                  </button>
+                  <button class="text-success hover:text-success/80 transition-basic" title="生成出库单">
+                    <i class="fa fa-truck"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-basic">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">SO-202305002</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">上海某贸易公司</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">2023-05-11</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">2023-05-18</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">¥28,500.00</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-warning/10 text-warning">待审核</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <div class="flex space-x-3">
+                  <button class="text-primary hover:text-primary/80 transition-basic" title="查看">
+                    <i class="fa fa-eye"></i>
+                  </button>
+                  <button class="text-neutral hover:text-neutral/80 transition-basic" title="编辑">
+                    <i class="fa fa-edit"></i>
+                  </button>
+                  <button class="text-danger hover:text-danger/80 transition-basic" title="取消">
+                    <i class="fa fa-times"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-basic">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">SO-202305003</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">广州某企业</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">2023-05-10</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">2023-05-14</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">¥15,600.00</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600">已出库</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <div class="flex space-x-3">
+                  <button class="text-primary hover:text-primary/80 transition-basic" title="查看">
+                    <i class="fa fa-eye"></i>
+                  </button>
+                  <button class="text-neutral hover:text-neutral/80 transition-basic" title="退货">
+                    <i class="fa fa-undo"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-basic">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">SO-202305004</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">深圳某有限公司</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">2023-05-09</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">2023-05-20</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">¥32,400.00</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-danger/10 text-danger">已取消</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <div class="flex space-x-3">
+                  <button class="text-primary hover:text-primary/80 transition-basic" title="查看">
+                    <i class="fa fa-eye"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- 分页 -->
+      <div class="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div class="text-sm text-gray-500 mb-4 sm:mb-0">
+          显示 1 到 4 条，共 28 条记录
+        </div>
+        <div class="flex space-x-1">
+          <button class="px-3 py-1 rounded border border-gray-300 bg-white text-gray-400 cursor-not-allowed text-sm">
+            <i class="fa fa-angle-left"></i>
+          </button>
+          <button class="px-3 py-1 rounded border border-primary bg-primary text-white text-sm">1</button>
+          <button class="px-3 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:border-primary hover:text-primary text-sm transition-basic">2</button>
+          <button class="px-3 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:border-primary hover:text-primary text-sm transition-basic">3</button>
+          <button class="px-3 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:border-primary hover:text-primary text-sm transition-basic">
+            <i class="fa fa-angle-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div id="create-order-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+      <div class="p-5 border-b border-gray-200 flex items-center justify-between">
+        <h3 class="text-lg font-semibold">新建销售订单</h3>
+        <button id="close-order-modal" class="text-gray-500 hover:text-gray-700 transition-basic">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="p-5">
+        <form id="create-order-form">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">订单编号</label>
+              <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" value="SO-202305005" readonly>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">订单日期</label>
+              <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" value="2023-05-13">
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">客户 <span class="text-danger">*</span></label>
+              <select class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+                <option value="">请选择客户</option>
+                <option value="1">北京某科技公司</option>
+                <option value="2">上海某贸易公司</option>
+                <option value="3">广州某企业</option>
+                <option value="4">深圳某有限公司</option>
+                <option value="5">杭州某集团</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">交货日期 <span class="text-danger">*</span></label>
+              <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+            </div>
+          </div>
+          
+          <div class="mb-5">
+            <label class="block text-sm font-medium text-gray-700 mb-1">备注</label>
+            <textarea rows="2" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" placeholder="请输入备注信息..."></textarea>
+          </div>
+          
+          <div class="mb-5">
+            <div class="flex items-center justify-between mb-3">
+              <h4 class="font-medium text-sm">销售商品明细</h4>
+              <button type="button" id="add-product-btn" class="px-3 py-1 text-sm bg-primary text-white rounded hover:bg-primary/90 transition-basic flex items-center">
+                <i class="fa fa-plus mr-1"></i> 添加商品
+              </button>
+            </div>
+            
+            <div class="border border-gray-200 rounded overflow-hidden">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="bg-gray-50">
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">商品名称</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">规格型号</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">单位</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">库存数量</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">销售数量</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">单价 (¥)</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">金额 (¥)</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
+                  </tr>
+                </thead>
+                <tbody id="product-table-body">
+                  <tr class="border-t border-gray-200">
+                    <td class="px-4 py-3">
+                      <select class="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary product-select">
+                        <option value="">请选择商品</option>
+                        <option value="1">笔记本电脑 - ThinkPad X1</option>
+                        <option value="2">台式电脑 - 联想拯救者</option>
+                        <option value="3">打印机 - HP LaserJet Pro</option>
+                        <option value="4">投影仪 - 明基W1120</option>
+                        <option value="5">办公椅 -  Herman Miller</option>
+                      </select>
+                    </td>
+                    <td class="px-4 py-3 product-spec">--</td>
+                    <td class="px-4 py-3">台</td>
+                    <td class="px-4 py-3 product-stock">0</td>
+                    <td class="px-4 py-3">
+                      <input type="number" min="1" class="w-20 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary quantity-input">
+                    </td>
+                    <td class="px-4 py-3">
+                      <input type="number" min="0" step="0.01" class="w-20 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary price-input">
+                    </td>
+                    <td class="px-4 py-3 product-amount">0.00</td>
+                    <td class="px-4 py-3">
+                      <button type="button" class="text-danger hover:text-danger/80 transition-basic delete-product">
+                        <i class="fa fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <div class="flex justify-end space-x-3">
+            <button type="button" id="cancel-order-btn" class="px-4 py-2 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50 transition-basic">取消</button>
+            <button type="submit" class="px-4 py-2 bg-primary text-white rounded text-sm hover:bg-primary/90 transition-basic">提交              提交审核
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const products = {
+      1: { name: "笔记本电脑", spec: "ThinkPad X1", stock: 15, price: 8999.00 },
+      2: { name: "台式电脑", spec: "联想拯救者", stock: 8, price: 6599.00 },
+      3: { name: "打印机", spec: "HP LaserJet Pro", stock: 20, price: 1299.00 },
+      4: { name: "投影仪", spec: "明基W1120", stock: 5, price: 4999.00 },
+      5: { name: "办公椅", spec: "Herman Miller", stock: 12, price: 3699.00 }
+    };
+    const createOrderModal = document.getElementById('create-order-modal');
+    
+    document.getElementById('create-order-btn').addEventListener('click', () => {
+      createOrderModal.classList.remove('hidden');
+      createOrderModal.classList.add('flex');
+    });
+    
+    document.getElementById('close-order-modal').addEventListener('click', () => {
+      createOrderModal.classList.add('hidden');
+      createOrderModal.classList.remove('flex');
+    });
+    
+    document.getElementById('cancel-order-btn').addEventListener('click', () => {
+      createOrderModal.classList.add('hidden');
+      createOrderModal.classList.remove('flex');
+    });
+    createOrderModal.addEventListener('click', (e) => {
+      if (e.target === createOrderModal) {
+        createOrderModal.classList.add('hidden');
+        createOrderModal.classList.remove('flex');
+      }
+    });
+    document.getElementById('add-product-btn').addEventListener('click', () => {
+      const tableBody = document.getElementById('product-table-body');
+      const newRow = document.createElement('tr');
+      newRow.className = 'border-t border-gray-200';
+      newRow.innerHTML = `
+        <td class="px-4 py-3">
+          <select class="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary product-select">
+            <option value="">请选择商品</option>
+            <option value="1">笔记本电脑 - ThinkPad X1</option>
+            <option value="2">台式电脑 - 联想拯救者</option>
+            <option value="3">打印机 - HP LaserJet Pro</option>
+            <option value="4">投影仪 - 明基W1120</option>
+            <option value="5">办公椅 -  Herman Miller</option>
+          </select>
+        </td>
+        <td class="px-4 py-3 product-spec">--</td>
+        <td class="px-4 py-3">台</td>
+        <td class="px-4 py-3 product-stock">0</td>
+        <td class="px-4 py-3">
+          <input type="number" min="1" class="w-20 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary quantity-input">
+        </td>
+        <td class="px-4 py-3">
+          <input type="number" min="0" step="0.01" class="w-20 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary price-input">
+        </td>
+        <td class="px-4 py-3 product-amount">0.00</td>
+        <td class="px-4 py-3">
+          <button type="button" class="text-danger hover:text-danger/80 transition-basic delete-product">
+            <i class="fa fa-trash"></i>
+          </button>
+        </td>
+      `;
+      tableBody.appendChild(newRow);
+      bindProductEvents(newRow);
+      newRow.querySelector('.delete-product').addEventListener('click', () => {
+        tableBody.removeChild(newRow);
+      });
+    });
+    function bindProductEvents(row) {
+      const productSelect = row.querySelector('.product-select');
+      const productSpec = row.querySelector('.product-spec');
+      const productStock = row.querySelector('.product-stock');
+      const quantityInput = row.querySelector('.quantity-input');
+      const priceInput = row.querySelector('.price-input');
+      const productAmount = row.querySelector('.product-amount');
+      productSelect.addEventListener('change', () => {
+        const productId = productSelect.value;
+        if (productId && products[productId]) {
+          const product = products[productId];
+          productSpec.textContent = product.spec;
+          productStock.textContent = product.stock;
+          priceInput.value = product.price;
+          calculateAmount(row);
+        } else {
+          productSpec.textContent = '--';
+          productStock.textContent = '0';
+          priceInput.value = '';
+          productAmount.textContent = '0.00';
+        }
+      });
+      quantityInput.addEventListener('input', () => {
+        const quantity = parseInt(quantityInput.value) || 0;
+        const stock = parseInt(productStock.textContent) || 0;
+        
+        if (quantity > stock && stock > 0) {
+          quantityInput.classList.add('border-danger');
+          alert(`库存不足！当前库存: ${stock}`);
+        } else {
+          quantityInput.classList.remove('border-danger');
+        }
+        
+        calculateAmount(row);
+      });
+      
+      priceInput.addEventListener('input', () => {
+        calculateAmount(row);
+      });
+    }
+    function calculateAmount(row) {
+      const quantity = parseInt(row.querySelector('.quantity-input').value) || 0;
+      const price = parseFloat(row.querySelector('.price-input').value) || 0;
+      const amount = quantity * price;
+      row.querySelector('.product-amount').textContent = amount.toFixed(2);
+    }
+    
+    // 初始化第一个商品行的事件
+    document.addEventListener('DOMContentLoaded', () => {
+      const firstRow = document.querySelector('#product-table-body tr');
+      if (firstRow) {
+        bindProductEvents(firstRow);
+        
+        // 为第一个删除按钮绑定事件
+        firstRow.querySelector('.delete-product').addEventListener('click', () => {
+          const tableBody = document.getElementById('product-table-body');
+          if (tableBody.children.length > 1) {
+            tableBody.removeChild(firstRow);
+          } else {
+            alert('至少保留一个商品');
+          }
+        });
+      }
+    });
+    
+    // 表单提交处理
+    document.getElementById('create-order-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      // 简单验证
+      const customerSelect = document.querySelector('select');
+      if (!customerSelect.value) {
+        alert('请选择客户');
+        return;
+      }
+      
+      const deliveryDate = document.querySelector('input[type="date"]:nth-of-type(2)');
+      if (!deliveryDate.value) {
+        alert('请选择交货日期');
+        return;
+      }
+      
+      // 检查是否有商品
+      const productRows = document.querySelectorAll('#product-table-body tr');
+      let hasValidProduct = false;
+      
+      productRows.forEach(row => {
+        const productId = row.querySelector('.product-select').value;
+        const quantity = parseInt(row.querySelector('.quantity-input').value) || 0;
+        
+        if (productId && quantity > 0) {
+          hasValidProduct = true;
+        }
+      });
+      
+      if (!hasValidProduct) {
+        alert('请添加有效的商品和数量');
+        return;
+      }
+      
+      alert('销售订单已提交审核！');
+      createOrderModal.classList.add('hidden');
+      createOrderModal.classList.remove('flex');
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>销售退货</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- 配置Tailwind自定义主题 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2563eb',
+            success: '#10b981',
+            warning: '#f59e0b',
+            danger: '#ef4444',
+            info: '#3b82f6',
+            neutral: '#64748b'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .transition-basic {
+        transition: all 0.2s ease;
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 font-sans text-gray-800 min-h-screen">
+  <!-- 页面标题和导航 -->
+  <div class="container mx-auto px-4 py-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+      <div>
+        <h2 class="text-2xl font-semibold">销售退货管理</h2>
+      </div>
+      
+      <div class="flex mt-4 md:mt-0 space-x-3">
+        <a href="sales-orders.html" class="px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-basic flex items-center">
+          <i class="fa fa-file-text-o mr-2"></i> 销售订单
+        </a>
+        <a href="sales-shipments.html" class="px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-basic flex items-center">
+          <i class="fa fa-truck mr-2"></i> 出库管理
+        </a>
+        <button id="create-return-btn" class="px-4 py-2 bg-danger text-white rounded text-sm hover:bg-danger/90 transition-basic flex items-center">
+          <i class="fa fa-plus mr-2"></i> 新建退货单
+        </button>
+      </div>
+    </div>
+    
+    <!-- 退货单筛选 -->
+    <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex flex-wrap gap-2">
+          <button class="px-3 py-1 bg-primary/10 text-primary rounded text-sm">全部</button>
+          <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200 transition-basic">待审核</button>
+          <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200 transition-basic">已审核</button>
+          <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200 transition-basic">已入库</button>
+          <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200 transition-basic">已拒绝</button>
+        </div>
+        
+        <div class="relative w-full md:w-64">
+          <input type="text" placeholder="搜索退货单号/订单号..." class="w-full pl-9 pr-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+          <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 退货单列表 -->
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-200">
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">退货单号</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">关联订单号</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">客户</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">退货日期</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">退货原因</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            <tr class="hover:bg-gray-50 transition-basic">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">RT-202305001</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">SO-202305003</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">广州未来信息有限公司</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">2023-05-16</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">商品质量问题</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-warning/10 text-warning">待审核</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <div class="flex space-x-3">
+                  <button class="text-primary hover:text-primary/80 transition-basic" title="查看">
+                    <i class="fa fa-eye"></i>
+                  </button>
+                  <button class="text-neutral hover:text-neutral/80 transition-basic" title="编辑">
+                    <i class="fa fa-edit"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-basic">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">RT-202305002</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">SO-202305004</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">深圳创新集团</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">2023-05-15</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">客户取消订单</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-success/10 text-success">已审核</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <div class="flex space-x-3">
+                  <button class="text-primary hover:text-primary/80 transition-basic" title="查看">
+                    <i class="fa fa-eye"></i>
+                  </button>
+                  <button class="text-info hover:text-info/80 transition-basic" title="确认入库">
+                    <i class="fa fa-archive"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-basic">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">RT-202304020</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">SO-202304018</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">北京恒通科技有限公司</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">2023-04-28</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">商品破损</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600">已入库</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <div class="flex space-x-3">
+                  <button class="text-primary hover:text-primary/80 transition-basic" title="查看">
+                    <i class="fa fa-eye"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-basic">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">RT-202304019</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">SO-202304015</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">杭州梦想科技</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">2023-04-25</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">客户订单错误</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-danger/10 text-danger">已拒绝</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <div class="flex space-x-3">
+                  <button class="text-primary hover:text-primary/80 transition-basic" title="查看">
+                    <i class="fa fa-eye"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- 分页 -->
+      <div class="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div class="text-sm text-gray-500 mb-4 sm:mb-0">
+          显示 1 到 4 条，共 12 条记录
+        </div>
+        <div class="flex space-x-1">
+          <button class="px-3 py-1 rounded border border-gray-300 bg-white text-gray-400 cursor-not-allowed text-sm">
+            <i class="fa fa-angle-left"></i>
+          </button>
+          <button class="px-3 py-1 rounded border border-primary bg-primary text-white text-sm">1</button>
+          <button class="px-3 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:border-primary hover:text-primary text-sm transition-basic">2</button>
+          <button class="px-3 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:border-primary hover:text-primary text-sm transition-basic">3</button>
+          <button class="px-3 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:border-primary hover:text-primary text-sm transition-basic">
+            <i class="fa fa-angle-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 新建退货单模态框 -->
+  <div id="create-return-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+      <div class="p-5 border-b border-gray-200 flex items-center justify-between">
+        <h3 class="text-lg font-semibold">创建销售退货单</h3>
+        <button id="close-return-modal" class="text-gray-500 hover:text-gray-700 transition-basic">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="p-5">
+        <form id="create-return-form">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">退货单号</label>
+              <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" value="RT-202305003" readonly>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">退货日期 <span class="text-danger">*</span></label>
+              <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" value="2023-05-17">
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">关联订单号 <span class="text-danger">*</span></label>
+              <select class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" id="order-select">
+                <option value="">请选择已出库的销售订单</option>
+                <option value="SO-202305003" data-customer="广州未来信息有限公司">SO-202305003</option>
+                <option value="SO-202305004" data-customer="深圳创新集团">SO-202305004</option>
+				                <option value="SO-202304018" data-customer="北京恒通科技有限公司">SO-202304018</option>
+				                <option value="SO-202305005" data-customer="杭州梦想科技">SO-202305005</option>
+				              </select>
+				            </div>
+				            
+				            <div>
+				              <label class="block text-sm font-medium text-gray-700 mb-1">客户</label>
+				              <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded text-sm bg-gray-50" id="customer-info" readonly>
+				            </div>
+				            
+				            <div class="md:col-span-2">
+				              <label class="block text-sm font-medium text-gray-700 mb-1">退货原因 <span class="text-danger">*</span></label>
+				              <select class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+				                <option value="">请选择退货原因</option>
+				                <option value="quality">商品质量问题</option>
+				                <option value="damage">商品破损</option>
+				                <option value="cancel">客户取消订单</option>
+				                <option value="wrong">商品型号/规格错误</option>
+				                <option value="excess">客户超额采购</option>
+				                <option value="other">其他原因</option>
+				              </select>
+				            </div>
+				          </div>
+				          
+				          <!-- 商品选择与退货明细 -->
+				          <div class="mb-5">
+				            <div class="flex items-center justify-between mb-3">
+				              <h4 class="text-sm font-medium text-gray-700">退货商品明细</h4>
+				              <button type="button" id="add-product-btn" class="px-3 py-1 bg-primary/10 text-primary rounded text-sm hover:bg-primary/20 transition-basic flex items-center">
+				                <i class="fa fa-plus mr-1"></i> 添加商品
+				              </button>
+				            </div>
+				            
+				            <!-- 商品选择弹窗（默认隐藏） -->
+				            <div id="product-select-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+				              <div class="bg-white rounded-lg w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+				                <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+				                  <h5 class="text-base font-medium">选择退货商品</h5>
+				                  <button id="close-product-modal" class="text-gray-500 hover:text-gray-700 transition-basic">
+				                    <i class="fa fa-times"></i>
+				                  </button>
+				                </div>
+				                <div class="p-4">
+				                  <div class="relative w-full mb-4">
+				                    <input type="text" placeholder="搜索商品名称/SKU..." class="w-full pl-9 pr-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+				                    <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+				                  </div>
+				                  <div class="overflow-x-auto">
+				                    <table class="w-full">
+				                      <thead>
+				                        <tr class="bg-gray-50 border-b border-gray-200">
+				                          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-10">
+				                            <input type="checkbox" class="rounded text-primary focus:ring-primary">
+				                          </th>
+				                          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">商品名称</th>
+				                          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU</th>
+				                          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">规格</th>
+				                          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">已售数量</th>
+				                          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">退货数量</th>
+				                        </tr>
+				                      </thead>
+				                      <tbody class="divide-y divide-gray-200">
+				                        <tr class="hover:bg-gray-50 transition-basic">
+				                          <td class="px-4 py-3 whitespace-nowrap">
+				                            <input type="checkbox" class="rounded text-primary focus:ring-primary">
+				                          </td>
+				                          <td class="px-4 py-3 whitespace-nowrap text-sm">高性能笔记本电脑</td>
+				                          <td class="px-4 py-3 whitespace-nowrap text-sm">NB-HP-001</td>
+				                          <td class="px-4 py-3 whitespace-nowrap text-sm">16G/512G</td>
+				                          <td class="px-4 py-3 whitespace-nowrap text-sm">2</td>
+				                          <td class="px-4 py-3 whitespace-nowrap">
+				                            <input type="number" min="1" max="2" value="1" class="w-16 px-2 py-1 border border-gray-300 rounded text-sm">
+				                          </td>
+				                        </tr>
+				                        <tr class="hover:bg-gray-50 transition-basic">
+				                          <td class="px-4 py-3 whitespace-nowrap">
+				                            <input type="checkbox" class="rounded text-primary focus:ring-primary">
+				                          </td>
+				                          <td class="px-4 py-3 whitespace-nowrap text-sm">无线鼠标</td>
+				                          <td class="px-4 py-3 whitespace-nowrap text-sm">MS-WL-002</td>
+				                          <td class="px-4 py-3 whitespace-nowrap text-sm">黑色</td>
+				                          <td class="px-4 py-3 whitespace-nowrap text-sm">5</td>
+				                          <td class="px-4 py-3 whitespace-nowrap">
+				                            <input type="number" min="1" max="5" value="1" class="w-16 px-2 py-1 border border-gray-300 rounded text-sm">
+				                          </td>
+				                        </tr>
+				                        <tr class="hover:bg-gray-50 transition-basic">
+				                          <td class="px-4 py-3 whitespace-nowrap">
+				                            <input type="checkbox" class="rounded text-primary focus:ring-primary">
+				                          </td>
+				                          <td class="px-4 py-3 whitespace-nowrap text-sm">机械键盘</td>
+				                          <td class="px-4 py-3 whitespace-nowrap text-sm">KB-ME-003</td>
+				                          <td class="px-4 py-3 whitespace-nowrap text-sm">青轴</td>
+				                          <td class="px-4 py-3 whitespace-nowrap text-sm">3</td>
+				                          <td class="px-4 py-3 whitespace-nowrap">
+				                            <input type="number" min="1" max="3" value="1" class="w-16 px-2 py-1 border border-gray-300 rounded text-sm">
+				                          </td>
+				                        </tr>
+				                      </tbody>
+				                    </table>
+				                  </div>
+				                </div>
+				                <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
+				                  <button id="cancel-select-product" class="px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-basic">取消</button>
+				                  <button id="confirm-select-product" class="px-4 py-2 bg-primary text-white rounded text-sm hover:bg-primary/90 transition-basic">确认添加</button>
+				                </div>
+				              </div>
+				            </div>
+				            
+				            <!-- 退货明细表格 -->
+				            <div class="border border-gray-200 rounded-lg overflow-hidden">
+				              <div class="overflow-x-auto">
+				                <table class="w-full">
+				                  <thead>
+				                    <tr class="bg-gray-50">
+				                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">商品名称</th>
+				                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU</th>
+				                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">规格</th>
+				                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">单价</th>
+				                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">退货数量</th>
+				                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">小计</th>
+				                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+				                    </tr>
+				                  </thead>
+				                  <tbody class="divide-y divide-gray-200">
+				                    <!-- 示例退货商品 -->
+				                    <tr>
+				                      <td class="px-6 py-4 whitespace-nowrap text-sm">高性能笔记本电脑</td>
+				                      <td class="px-6 py-4 whitespace-nowrap text-sm">NB-HP-001</td>
+				                      <td class="px-6 py-4 whitespace-nowrap text-sm">16G/512G</td>
+				                      <td class="px-6 py-4 whitespace-nowrap text-sm">¥12,999.00</td>
+				                      <td class="px-6 py-4 whitespace-nowrap text-sm">1</td>
+				                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">¥12,999.00</td>
+				                      <td class="px-6 py-4 whitespace-nowrap text-sm">
+				                        <button class="text-danger hover:text-danger/80 transition-basic" title="删除">
+				                          <i class="fa fa-trash"></i>
+				                        </button>
+				                      </td>
+				                    </tr>
+				                    <tr>
+				                      <td class="px-6 py-4 whitespace-nowrap text-sm">无线鼠标</td>
+				                      <td class="px-6 py-4 whitespace-nowrap text-sm">MS-WL-002</td>
+				                      <td class="px-6 py-4 whitespace-nowrap text-sm">黑色</td>
+				                      <td class="px-6 py-4 whitespace-nowrap text-sm">¥199.00</td>
+				                      <td class="px-6 py-4 whitespace-nowrap text-sm">2</td>
+				                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">¥398.00</td>
+				                      <td class="px-6 py-4 whitespace-nowrap text-sm">
+				                        <button class="text-danger hover:text-danger/80 transition-basic" title="删除">
+				                          <i class="fa fa-trash"></i>
+				                        </button>
+				                      </td>
+				                    </tr>
+				                  </tbody>
+				                </table>
+				              </div>
+				              <!-- 无数据提示（默认隐藏） -->
+				              <div id="empty-detail-hint" class="hidden py-12 text-center">
+				                <i class="fa fa-inbox text-gray-300 text-3xl mb-2"></i>
+				                <p class="text-gray-500 text-sm">暂无退货商品，请点击"添加商品"按钮选择商品</p>
+				              </div>
+				            </div>
+				          </div>
+				          
+				          <!-- 退货备注 -->
+				          <div class="mb-6">
+				            <label class="block text-sm font-medium text-gray-700 mb-1">退货备注</label>
+				            <textarea rows="2" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" placeholder="请输入退货相关备注信息..."></textarea>
+				          </div>
+				          
+				          <!-- 表单操作按钮 -->
+				          <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+				            <button type="button" id="cancel-return-btn" class="px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-basic">取消</button>
+				            <button type="submit" class="px-4 py-2 bg-danger text-white rounded text-sm hover:bg-danger/90 transition-basic">提交审核</button>
+				          </div>
+				        </form>
+				      </div>
+				    </div>
+				  </div>
+				  
+				  <!-- 查看退货单详情模态框（示例，默认隐藏） -->
+				  <div id="view-return-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+				    <div class="bg-white rounded-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+				      <div class="p-5 border-b border-gray-200 flex items-center justify-between">
+				        <h3 class="text-lg font-semibold">退货单详情</h3>
+				        <button id="close-view-modal" class="text-gray-500 hover:text-gray-700 transition-basic">
+				          <i class="fa fa-times"></i>
+				        </button>
+				      </div>
+				      <div class="p-5">
+				        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+				          <div>
+				            <p class="text-sm text-gray-500">退货单号</p>
+				            <p class="text-sm font-medium">RT-202305001</p>
+				          </div>
+				          <div>
+				            <p class="text-sm text-gray-500">关联订单号</p>
+				            <p class="text-sm font-medium">SO-202305003</p>
+				          </div>
+				          <div>
+				            <p class="text-sm text-gray-500">客户名称</p>
+				            <p class="text-sm font-medium">广州未来信息有限公司</p>
+				          </div>
+				          <div>
+				            <p class="text-sm text-gray-500">退货日期</p>
+				            <p class="text-sm font-medium">2023-05-16</p>
+				          </div>
+				          <div>
+				            <p class="text-sm text-gray-500">退货原因</p>
+				            <p class="text-sm font-medium">商品质量问题</p>
+				          </div>
+				          <div>
+				            <p class="text-sm text-gray-500">状态</p>
+				            <p class="text-sm font-medium text-warning">待审核</p>
+				          </div>
+				          <div class="md:col-span-2">
+				            <p class="text-sm text-gray-500">退货备注</p>
+				            <p class="text-sm">笔记本电脑屏幕出现亮点，客户要求退货</p>
+				          </div>
+				        </div>
+				        
+				        <div class="mb-6">
+				          <h4 class="text-sm font-medium text-gray-700 mb-3">退货商品明细</h4>
+				          <div class="border border-gray-200 rounded-lg overflow-hidden">
+				            <div class="overflow-x-auto">
+				              <table class="w-full">
+				                <thead>
+				                  <tr class="bg-gray-50">
+				                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">商品名称</th>
+				                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU</th>
+				                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">规格</th>
+				                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">单价</th>
+				                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">退货数量</th>
+				                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">小计</th>
+				                  </tr>
+				                </thead>
+				                <tbody class="divide-y divide-gray-200">
+				                  <tr>
+				                    <td class="px-6 py-4 whitespace-nowrap text-sm">高性能笔记本电脑</td>
+				                    <td class="px-6 py-4 whitespace-nowrap text-sm">NB-HP-001</td>
+				                    <td class="px-6 py-4 whitespace-nowrap text-sm">16G/512G</td>
+				                    <td class="px-6 py-4 whitespace-nowrap text-sm">¥12,999.00</td>
+									                    <td class="px-6 py-4 whitespace-nowrap text-sm">1</td>
+									                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">¥12,999.00</td>
+									                  </tr>
+									                </tbody>
+									              </table>
+									            </div>
+									          </div>
+									        </div>
+									        
+									        <!-- 审核记录 -->
+									        <div class="mb-6">
+									          <h4 class="text-sm font-medium text-gray-700 mb-3">审核记录</h4>
+									          <div class="border border-gray-200 rounded-lg p-4 space-y-3">
+									            <div class="flex">
+									              <div class="flex-shrink-0 mr-3">
+									                <img src="https://picsum.photos/id/1005/28/28" alt="用户头像" class="w-7 h-7 rounded-full">
+									              </div>
+									              <div class="flex-1">
+									                <div class="flex items-center justify-between">
+									                  <p class="text-sm font-medium">王销售</p>
+									                  <p class="text-xs text-gray-500">2023-05-16 10:23</p>
+									                </div>
+									                <p class="text-sm text-gray-700 mt-1">提交退货单审核，原因：商品质量问题</p>
+									              </div>
+									            </div>
+									          </div>
+									        </div>
+									        
+									        <!-- 操作按钮（根据状态动态显示） -->
+									        <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+									          <button id="print-return-btn" class="px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-basic flex items-center">
+									            <i class="fa fa-print mr-2"></i> 打印单据
+									          </button>
+									          <button id="close-view-btn" class="px-4 py-2 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200 transition-basic">关闭</button>
+									        </div>
+									      </div>
+									    </div>
+									  </div>
+									  <!-- JavaScript 交互逻辑 -->
+									  <script>
+									    // DOM 元素获取
+									    const createReturnBtn = document.getElementById('create-return-btn');
+									    const createReturnModal = document.getElementById('create-return-modal');
+									    const closeReturnModal = document.getElementById('close-return-modal');
+									    const cancelReturnBtn = document.getElementById('cancel-return-btn');
+									    const orderSelect = document.getElementById('order-select');
+									    const customerInfo = document.getElementById('customer-info');
+									    const addProductBtn = document.getElementById('add-product-btn');
+									    const productSelectModal = document.getElementById('product-select-modal');
+									    const closeProductModal = document.getElementById('close-product-modal');
+									    const cancelSelectProduct = document.getElementById('cancel-select-product');
+									    const confirmSelectProduct = document.getElementById('confirm-select-product');
+									    const viewReturnBtns = document.querySelectorAll('[title="查看"]');
+									    const viewReturnModal = document.getElementById('view-return-modal');
+									    const closeViewModal = document.getElementById('close-view-modal');
+									    const closeViewBtn = document.getElementById('close-view-btn');
+									    const confirmStockInBtns = document.querySelectorAll('[title="确认入库"]');
+									    const stockInModal = document.getElementById('stock-in-modal');
+									    const closeStockInModal = document.getElementById('close-stock-in-modal');
+									    const cancelStockInBtn = document.getElementById('cancel-stock-in-btn');
+									    
+									    // 打开新建退货单模态框
+									    createReturnBtn.addEventListener('click', () => {
+									      createReturnModal.classList.remove('hidden');
+									      createReturnModal.classList.add('flex');
+									    });
+									    
+									    // 关闭新建退货单模态框
+									    function closeReturnModalFunc() {
+									      createReturnModal.classList.add('hidden');
+									      createReturnModal.classList.remove('flex');
+									    }
+									    closeReturnModal.addEventListener('click', closeReturnModalFunc);
+									    cancelReturnBtn.addEventListener('click', closeReturnModalFunc);
+									    
+									    // 选择关联订单后自动填充客户信息
+									    orderSelect.addEventListener('change', () => {
+									      const selectedOption = orderSelect.options[orderSelect.selectedIndex];
+									      customerInfo.value = selectedOption.getAttribute('data-customer') || '';
+									    });
+									    // 打开查看退货单模态框
+									    viewReturnBtns.forEach(btn => {
+									      btn.addEventListener('click', () => {
+									        viewReturnModal.classList.remove('hidden');
+									        viewReturnModal.classList.add('flex');
+									      });
+									    });
+									    
+									    // 关闭查看退货单模态框
+									    function closeViewModalFunc() {
+									      viewReturnModal.classList.add('hidden');
+									      viewReturnModal.classList.remove('flex');
+									    }
+									    closeViewModal.addEventListener('click', closeViewModalFunc);
+									    closeViewBtn.addEventListener('click', closeViewModalFunc);
+
+									    // 表单提交（模拟）
+									    document.getElementById('create-return-form').addEventListener('submit', (e) => {
+									      e.preventDefault();
+									      alert('退货单提交审核成功');
+									      closeReturnModalFunc();
+									      // 可在此处添加刷新列表逻辑
+									    });
+					</script>
+		</body>
+</html>

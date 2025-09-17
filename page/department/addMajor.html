@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>合作方信息管理系统</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- 配置Tailwind自定义颜色和字体 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#36CFC9',
+            success: '#52C41A',
+            warning: '#FAAD14',
+            danger: '#FF4D4F',
+            info: '#40A9FF',
+            light: '#F5F7FA',
+            dark: '#1D2129',
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .card-shadow {
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      }
+      .transition-bg {
+        transition: background-color 0.3s ease;
+      }
+      .transition-transform {
+        transition: transform 0.2s ease;
+      }
+      .hover-lift:hover {
+        transform: translateY(-2px);
+      }
+      .table-cell-ellipsis {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 200px;
+      }
+    }
+  </style>
+</head>
+
+<body class="font-inter bg-gray-50 text-dark min-h-screen flex flex-col">
+    <!-- 合作方信息管理面板 (默认显示) -->
+    <div id="partner-panel" class="space-y-6">
+      <!-- 操作工具栏 -->
+      <div class="bg-white p-4 rounded-lg card-shadow flex flex-wrap items-center justify-between gap-4">
+        <div class="flex flex-wrap items-center gap-3">
+          <button id="add-partner-btn" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-md flex items-center transition-bg hover-lift">
+            <i class="fa fa-plus mr-2"></i>新增合作方
+          </button>
+          
+          <!-- 合作方类型切换 -->
+          <div class="inline-flex rounded-md shadow-sm" role="group">
+            <button type="button" class="partner-type-btn px-4 py-2 text-sm font-medium text-primary bg-white border border-primary rounded-l-lg hover:bg-primary/5 focus:z-10 focus:ring-2 focus:ring-primary/30 focus:text-primary">
+              供应商
+            </button>
+            <button type="button" class="partner-type-btn px-4 py-2 text-sm font-medium text-gray-500 bg-white border-t border-b border-gray-300 hover:bg-gray-50 focus:z-10 focus:ring-2 focus:ring-primary/30 focus:text-primary rounded-r-lg">
+              客户
+            </button>
+          </div>
+        </div>
+        
+        <!-- 搜索区域 -->
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="relative">
+            <select class="pl-3 pr-8 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary appearance-none bg-white mr-2">
+              <option value="name">按名称</option>
+              <option value="contact">按联系人</option>
+              <option value="phone">按电话</option>
+            </select>
+            <i class="fa fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-xs" style="right: 10px;"></i>
+          </div>
+          <div class="relative">
+            <input type="text" placeholder="请输入搜索内容" class="pl-9 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary w-full md:w-64">
+            <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+          </div>
+          <button class="bg-white border border-gray-300 hover:bg-gray-50 px-4 py-2 rounded-md transition-bg hover-lift">
+            <i class="fa fa-search mr-1"></i>搜索
+          </button>
+          <button class="bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-md transition-bg hover-lift">
+            <i class="fa fa-refresh mr-1"></i>重置
+          </button>
+        </div>
+      </div>
+      
+      <!-- 数据统计卡片 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white p-4 rounded-lg card-shadow flex items-center space-x-4">
+          <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+            <i class="fa fa-building text-xl"></i>
+          </div>
+          <div>
+            <p class="text-gray-500 text-sm">总合作方数</p>
+            <p class="text-2xl font-bold">30</p>
+          </div>
+        </div>
+        <div class="bg-white p-4 rounded-lg card-shadow flex items-center space-x-4">
+          <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+            <i class="fa fa-truck text-xl"></i>
+          </div>
+          <div>
+            <p class="text-gray-500 text-sm">供应商数</p>
+            <p class="text-2xl font-bold">12</p>
+          </div>
+        </div>
+        <div class="bg-white p-4 rounded-lg card-shadow flex items-center space-x-4">
+          <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+            <i class="fa fa-user-o text-xl"></i>
+          </div>
+          <div>
+            <p class="text-gray-500 text-sm">客户数</p>
+            <p class="text-2xl font-bold">18</p>
+          </div>
+        </div>
+        <div class="bg-white p-4 rounded-lg card-shadow flex items-center space-x-4">
+          <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+            <i class="fa fa-calendar-plus-o text-xl"></i>
+          </div>
+          <div>
+            <p class="text-gray-500 text-sm">本月新增</p>
+            <p class="text-2xl font-bold">5</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 合作方列表表格 -->
+      <div class="bg-white rounded-lg card-shadow overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-gray-50 text-left">
+                <th class="px-6 py-3 font-medium text-gray-500 w-16">ID</th>
+                <th class="px-6 py-3 font-medium text-gray-500">名称</th>
+                <th class="px-6 py-3 font-medium text-gray-500">联系人</th>
+                <th class="px-6 py-3 font-medium text-gray-500">电话</th>
+                <th class="px-6 py-3 font-medium text-gray-500">合作方式/信用等级</th>
+                <th class="px-6 py-3 font-medium text-gray-500">合作状态</th>
+                <th class="px-6 py-3 font-medium text-gray-500">录入时间</th>
+                <th class="px-6 py-3 font-medium text-gray-500 w-24 text-center">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- 供应商数据行 -->
+              <tr class="border-t border-gray-100 hover:bg-gray-50 transition-bg">
+                <td class="px-6 py-4 font-medium">S001</td>
+                <td class="px-6 py-4 table-cell-ellipsis">科技配件供应商</td>
+                <td class="px-6 py-4">张三</td>
+                <td class="px-6 py-4">13800138000</td>
+                <td class="px-6 py-4">
+                  <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">月结</span>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">正常</span>
+                </td>
+                <td class="px-6 py-4 text-gray-500">2023-06-10 09:30</td>
+                <td class="px-6 py-4">
+                  <div class="flex justify-center space-x-2">
+                    <button class="text-info hover:text-info/80 p-1" title="编辑">
+                      <i class="fa fa-pencil"></i>
+                    </button>
+                    <button class="text-danger hover:text-danger/80 p-1 delete-btn" title="删除">
+                      <i class="fa fa-trash-o"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr class="border-t border-gray-100 hover:bg-gray-50 transition-bg">
+                <td class="px-6 py-4 font-medium">S002</td>
+                <td class="px-6 py-4 table-cell-ellipsis">电子设备批发商</td>
+                <td class="px-6 py-4">李四</td>
+                <td class="px-6 py-4">13900139000</td>
+                <td class="px-6 py-4">
+                  <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">货到付款</span>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">正常</span>
+                </td>
+                <td class="px-6 py-4 text-gray-500">2023-06-12 14:15</td>
+                <td class="px-6 py-4">
+                  <div class="flex justify-center space-x-2">
+                    <button class="text-info hover:text-info/80 p-1" title="编辑">
+                      <i class="fa fa-pencil"></i>
+                    </button>
+                    <button class="text-danger hover:text-danger/80 p-1 delete-btn" title="删除">
+                      <i class="fa fa-trash-o"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr class="border-t border-gray-100 hover:bg-gray-50 transition-bg">
+                <td class="px-6 py-4 font-medium">S003</td>
+                <td class="px-6 py-4 table-cell-ellipsis">办公设备供应商</td>
+                <td class="px-6 py-4">王五</td>
+                <td class="px-6 py-4">13700137000</td>
+                <td class="px-6 py-4">
+                  <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">月结</span>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">暂停</span>
+                </td>
+                <td class="px-6 py-4 text-gray-500">2023-06-15 11:20</td>
+                <td class="px-6 py-4">
+                  <div class="flex justify-center space-x-2">
+                    <button class="text-info hover:text-info/80 p-1" title="编辑">
+                      <i class="fa fa-pencil"></i>
+                    </button>
+                    <button class="text-danger hover:text-danger/80 p-1 delete-btn" title="删除">
+                      <i class="fa fa-trash-o"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="px-6 py-4 border-t border-gray-100 flex flex-wrap items-center justify-between gap-4">
+          <div class="text-sm text-gray-500">
+            显示 1 到 5 条，共 24 条
+          </div>
+          <div class="flex items-center space-x-1">
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-300 text-gray-500 hover:border-primary hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+              <i class="fa fa-angle-left"></i>
+            </button>
+            <button class="w-8 h-8 flex items-center justify-center rounded bg-primary text-white">1</button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-300 hover:border-primary hover:text-primary">2</button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-300 hover:border-primary hover:text-primary">3</button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-300 hover:border-primary hover:text-primary">4</button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-300 hover:border-primary hover:text-primary">5</button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-300 text-gray-500 hover:border-primary hover:text-primary">
+              <i class="fa fa-angle-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>

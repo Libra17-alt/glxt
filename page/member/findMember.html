@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>查询成员</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- Tailwind配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2563eb',
+            success: '#10b981',
+            warning: '#f59e0b',
+            danger: '#ef4444',
+            neutral: '#64748b'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto { content-visibility: auto; }
+      .transition-basic { transition: all 0.2s ease; }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800 min-h-screen">
+  <!-- 主体内容 -->
+  <div class="container mx-auto px-4 py-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+      <div>
+        <h2 class="text-2xl font-semibold">查询成员</h2>
+      </div>
+      
+      <div class="flex mt-4 md:mt-0 space-x-3">
+        <a href="statisMember.html" class="px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-basic flex items-center">
+          <i class="fa fa-bar-chart mr-2"></i> 成员统计
+        </a>
+        <a href="addMember.html" class="px-4 py-2 bg-primary text-white rounded text-sm hover:bg-primary/90 transition-basic flex items-center">
+          <i class="fa fa-plus mr-2"></i> 添加成员
+        </a>
+      </div>
+    </div>
+    
+    <!-- 查询条件 -->
+    <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+      <form id="query-member-form">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">姓名</label>
+            <input type="text" placeholder="请输入姓名" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">性别</label>
+            <select class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+              <option value="">请选择性别</option>
+              <option value="男">男</option>
+              <option value="女">女</option>
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">电话</label>
+            <input type="tel" placeholder="请输入电话号码" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">部门</label>
+            <select class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+              <option value="">请选择部门</option>
+              <option value="采购部">采购部</option>
+              <option value="销售部">销售部</option>
+              <option value="仓储部">仓储部</option>
+              <option value="财务部">财务部</option>
+              <option value="人事部">人事部</option>
+              <option value="管理层">管理层</option>
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">状态</label>
+            <select class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+              <option value="">请选择状态</option>
+              <option value="正常">正常</option>
+              <option value="请假">请假</option>
+              <option value="离职">离职</option>
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">是否担任管理职务</label>
+            <select class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+              <option value="">请选择</option>
+              <option value="是">是</option>
+              <option value="否">否</option>
+            </select>
+          </div>
+          
+          <div class="md:col-span-2 flex items-end">
+            <button type="submit" class="px-4 py-2 bg-primary text-white rounded text-sm hover:bg-primary/90 transition-basic mr-3">
+              <i class="fa fa-search mr-2"></i> 查询
+            </button>
+            <button type="reset" class="px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-basic">
+              <i class="fa fa-refresh mr-2"></i> 重置
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+    
+    <!-- 成员列表 -->
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-200">
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">序号</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">姓名</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">性别</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">电话</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">工作部门</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">职务</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            <tr class="hover:bg-gray-50 transition-basic">
+              <td class="px-6 py-4 whitespace-nowrap text-sm">1</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">张三</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">男</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">13800138000</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">采购部</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-success/10 text-success">正常</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">采购员</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <button class="text-primary hover:text-primary/80 transition-basic mr-3 edit-btn" data-id="1" title="修改">
+                  <i class="fa fa-pencil"></i>
+                </button>
+              </td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-basic">
+              <td class="px-6 py-4 whitespace-nowrap text-sm">2</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">李四</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">女</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">13900139000</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">销售部</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-success/10 text-success">正常</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">销售员</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <button class="text-primary hover:text-primary/80 transition-basic mr-3 edit-btn" data-id="2" title="修改">
+                  <i class="fa fa-pencil"></i>
+                </button>
+              </td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-basic">
+              <td class="px-6 py-4 whitespace-nowrap text-sm">3</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">王五</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">男</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">13700137000</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">仓储部</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-warning/10 text-warning">请假</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">库管员</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <button class="text-primary hover:text-primary/80 transition-basic mr-3 edit-btn" data-id="3" title="修改">
+                  <i class="fa fa-pencil"></i>
+                </button>
+              </td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-basic">
+              <td class="px-6 py-4 whitespace-nowrap text-sm">4</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">赵六</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">女</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">13600136000</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">财务部</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-success/10 text-success">正常</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">无</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <button class="text-primary hover:text-primary/80 transition-basic mr-3 edit-btn" data-id="4" title="修改">
+                  <i class="fa fa-pencil"></i>
+                </button>
+              </td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-basic">
+              <td class="px-6 py-4 whitespace-nowrap text-sm">5</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">钱七</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">男</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">13500135000</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">销售部</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-danger/10 text-danger">离职</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">销售员</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <button class="text-primary hover:text-primary/80 transition-basic mr-3 edit-btn" data-id="5" title="修改">
+                  <i class="fa fa-pencil"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- 分页 -->
+      <div class="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div class="text-sm text-gray-500 mb-4 sm:mb-0">
+          显示 1 到 5 条，共 23 条记录
+        </div>
+        <div class="flex space-x-1">
+          <button class="px-3 py-1 rounded border border-gray-300 bg-white text-gray-400 cursor-not-allowed text-sm">
+            <i class="fa fa-angle-left"></i>
+          </button>
+          <button class="px-3 py-1 rounded border border-primary bg-primary text-white text-sm">1</button>
+          <button class="px-3 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:border-primary hover:text-primary text-sm transition-basic">2</button>
+          <button class="px-3 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:border-primary hover:text-primary text-sm transition-basic">3</button>
+          <button class="px-3 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:border-primary hover:text-primary text-sm transition-basic">4</button>
+          <button class="px-3 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:border-primary hover:text-primary text-sm transition-basic">5</button>
+          <button class="px-3 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:border-primary hover:text-primary text-sm transition-basic">
+            <i class="fa fa-angle-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 修改成员信息模态框 -->
+  <div id="edit-member-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div class="p-5 border-b border-gray-200 flex items-center justify-between">
+        <h3 class="text-lg font-semibold">修改成员信息</h3>
+        <button id="close-edit-modal" class="text-gray-500 hover:text-gray-700 transition-basic">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="p-5">
+        <form id="edit-member-form">
+          <input type="hidden" id="member-id">
+          
+          <div class="mb-4 pb-4 border-b border-gray-100">
+            <p class="text-sm text-gray-500 mb-3">基本信息（不可修改）</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">姓名</label>
+                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded text-sm bg-gray-50" readonly>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">性别</label>
+                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded text-sm bg-gray-50" readonly>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">籍贯</label>
+                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded text-sm bg-gray-50" readonly>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">加入日期</label>
+                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded text-sm bg-gray-50" readonly>
+              </div>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">电话 *</label>
+              <input type="tel" placeholder="请输入电话号码" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" required>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">工作部门 *</label>
+              <select class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" required>
+                <option value="采购部">采购部</option>
+                <option value="销售部">销售部</option>
+                <option value="仓储部">仓储部</option>
+                <option value="财务部">财务部</option>
+                <option value="人事部">人事部</option>
+                <option value="管理层">管理层</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">状态 *</label>
+              <select class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" required>
+                <option value="正常">正常</option>
+                <option value="请假">请假</option>
+                <option value="离职">离职</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">担任的职务 *</label>
+              <select class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" required>
+                <option value="无">无</option>
+                <option value="采购员">采购员</option>
+                <option value="销售员">销售员</option>
+                <option value="库管员">库管员</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-1">备注</label>
+            <textarea rows="3" placeholder="请输入备注信息..." class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"></textarea>
+          </div>
+          
+          <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+            <button type="button" id="cancel-edit-btn" class="px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-basic">取消</button>
+            <button type="submit" class="px-4 py-2 bg-primary text-white rounded text-sm hover:bg-primary/90 transition-basic">保存修改</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  <!-- JavaScript 交互逻辑 -->
+  <script>
+    // DOM 元素获取
+    const editBtns = document.querySelectorAll('.edit-btn');
+    const editMemberModal = document.getElementById('edit-member-modal');
+    const closeEditModal = document.getElementById('close-edit-modal');
+    const cancelEditBtn = document.getElementById('cancel-edit-btn');
+    const editMemberForm = document.getElementById('edit-member-form');
+    const memberIdInput = document.getElementById('member-id');
+    
+    // 打开修改成员信息模态框
+    editBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const memberId = btn.getAttribute('data-id');
+        memberIdInput.value = memberId;
+        
+        // 根据ID获取成员信息并填充表单（这里模拟数据）
+        fillEditForm(memberId);
+        
+        editMemberModal.classList.remove('hidden');
+        editMemberModal.classList.add('flex');
+      });
+    });
+    
+    // 填充编辑表单（模拟数据）
+    function fillEditForm(memberId) {
+      // 模拟不同ID的成员数据
+      const members = {
+        '1': {
+          name: '张三',
+          gender: '男',
+          nativePlace: '北京',
+          joinDate: '2023-01-15',
+          phone: '13800138000',
+          department: '采购部',
+          status: '正常',
+          position: '采购员',
+          remark: '负责日常采购工作'
+        },
+        '2': {
+          name: '李四',
+          gender: '女',
+          nativePlace: '上海',
+          joinDate: '2023-02-20',
+          phone: '13900139000',
+          department: '销售部',
+          status: '正常',
+          position: '销售员',
+          remark: '负责华东区域销售'
+        },
+        '3': {
+          name: '王五',
+          gender: '男',
+          nativePlace: '广州',
+          joinDate: '2023-03-10',
+          phone: '13700137000',
+          department: '仓储部',
+          status: '请假',
+          position: '库管员',
+          remark: '负责仓库管理，请假至6月10日'
+        },
+        '4': {
+          name: '赵六',
+          gender: '女',
+          nativePlace: '深圳',
+          joinDate: '2023-04-05',
+          phone: '13600136000',
+          department: '财务部',
+          status: '正常',
+          position: '无',
+          remark: ''
+        },
+        '5': {
+          name: '钱七',
+          gender: '男',
+          nativePlace: '杭州',
+          joinDate: '2023-01-20',
+          phone: '13500135000',
+          department: '销售部',
+          status: '离职',
+          position: '销售员',
+          remark: '2024-05-15离职'
+        }
+      };
+      
+      const member = members[memberId] || members['1'];
+      
+      // 填充不可修改的基本信息
+      const readOnlyInputs = editMemberForm.querySelectorAll('input[readonly]');
+      readOnlyInputs[0].value = member.name;
+      readOnlyInputs[1].value = member.gender;
+      readOnlyInputs[2].value = member.nativePlace;
+      readOnlyInputs[3].value = member.joinDate;
+      
+      // 填充可修改的信息
+      const phoneInput = editMemberForm.querySelector('input[type="tel"]');
+      const departmentSelect = editMemberForm.querySelector('select:nth-of-type(1)');
+      const statusSelect = editMemberForm.querySelector('select:nth-of-type(2)');
+      const positionSelect = editMemberForm.querySelector('select:nth-of-type(3)');
+      const remarkTextarea = editMemberForm.querySelector('textarea');
+      
+      phoneInput.value = member.phone;
+      departmentSelect.value = member.department;
+      statusSelect.value = member.status;
+      positionSelect.value = member.position;
+      remarkTextarea.value = member.remark;
+    }
+    
+    // 关闭修改成员信息模态框
+    function closeEditModalFunc() {
+      editMemberModal.classList.add('hidden');
+      editMemberModal.classList.remove('flex');
+    }
+    closeEditModal.addEventListener('click', closeEditModalFunc);
+    cancelEditBtn.addEventListener('click', closeEditModalFunc);
+    
+    // 表单提交（模拟）
+    editMemberForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      alert('成员信息修改成功');
+      closeEditModalFunc();
+    });
+    
+    // 查询表单提交（模拟）
+    document.getElementById('query-member-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      // 这里可以添加查询逻辑
+      alert('查询成功，共找到符合条件的成员 5 条');
+    });
+  </script>
+</body>
+</html>

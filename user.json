@@ -1,0 +1,79 @@
+{
+  "code": 0,
+  "msg": "",
+  "count": 100,
+  "data": [
+    {
+      "id": 10001,
+      "realname": "张三",
+      "deptname": "仓库管理部",
+      "position": "仓库主管",
+      "seniority": 5,
+      "telephone": "13545678767",
+      "status": "1"
+    },
+    {
+      "id": 10002,
+      "realname": "李四",
+      "deptname": "销售部",
+      "position": "销售经理",
+      "seniority": 3,
+      "telephone": "13834523412",
+      "status": "1"
+    },
+    {
+      "id": 10003,
+      "realname": "王五",
+      "deptname": "采购部",
+      "position": "采购员",
+      "seniority": 2,
+      "telephone": "13912345678",
+      "status": "1"
+    },
+    {
+      "id": 10004,
+      "realname": "赵六",
+      "deptname": "财务部",
+      "position": "会计",
+      "seniority": 4,
+      "telephone": "13687654321",
+      "status": "0"
+    },
+    {
+      "id": 10005,
+      "realname": "钱七",
+      "deptname": "运营管理部",
+      "position": "运营总监",
+      "seniority": 8,
+      "telephone": "13765432189",
+      "status": "1"
+    },
+    {
+      "id": 10006,
+      "realname": "孙八",
+      "deptname": "技术支持部",
+      "position": "技术员",
+      "seniority": 1,
+      "telephone": "13498765432",
+      "status": "1"
+    },
+    {
+      "id": 10007,
+      "realname": "周九",
+      "deptname": "仓库管理部",
+      "position": "库管员",
+      "seniority": 3,
+      "telephone": "13321987654",
+      "status": "1"
+    },
+    {
+      "id": 10008,
+      "realname": "吴十",
+      "deptname": "销售部",
+      "position": "销售代表",
+      "seniority": 2,
+      "telephone": "13256789012",
+      "status": "0"
+    }
+  ]
+}

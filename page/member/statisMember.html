@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>成员统计</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  
+  <!-- Tailwind配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2563eb',
+            success: '#10b981',
+            warning: '#f59e0b',
+            danger: '#ef4444',
+            neutral: '#64748b'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto { content-visibility: auto; }
+      .transition-basic { transition: all 0.2s ease; }
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 font-sans text-gray-800 min-h-screen">
+  <!-- 主体内容 -->
+  <div class="container mx-auto px-4 py-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+      <div>
+        <div class="flex items-center">
+          <a href="query-member.html" class="text-gray-500 hover:text-primary transition-basic mr-2">
+            <i class="fa fa-angle-left"></i>
+          </a>
+          <h2 class="text-2xl font-semibold">成员统计</h2>
+        </div>
+      </div>
+      <div class="flex mt-4 md:mt-0 space-x-3">
+        <button id="export-excel-btn" class="px-4 py-2 bg-success text-white rounded text-sm hover:bg-success/90 transition-basic flex items-center">
+          <i class="fa fa-file-excel-o mr-2"></i> 导出Excel
+        </button>
+        <button id="refresh-data-btn" class="px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-basic flex items-center">
+          <i class="fa fa-refresh mr-2"></i> 刷新数据
+        </button>
+      </div>
+    </div>
+    
+    <!-- 统计筛选 -->
+    <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+      <div class="flex flex-col md:flex-row md:items-center gap-4">
+        <div class="flex flex-wrap gap-2">
+          <button class="px-3 py-1 bg-primary/10 text-primary rounded text-sm">全部成员</button>
+          <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200 transition-basic">在职成员</button>
+          <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200 transition-basic">离职成员</button>
+        </div>
+        
+        <div class="ml-auto">
+          <select class="w-full md:w-auto px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+            <option value="all">全部时间</option>
+            <option value="month">本月</option>
+            <option value="quarter">本季度</option>
+            <option value="year">本年度</option>
+            <option value="custom">自定义</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 统计概览 -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-white rounded-lg shadow-sm p-4">
+        <p class="text-gray-500 text-sm">总成员数</p>
+        <h3 class="text-2xl font-semibold mt-1">23</h3>
+        <div class="mt-3 text-xs text-success flex items-center">
+          <i class="fa fa-caret-up mr-1"></i> 较上月增长 2 人
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow-sm p-4">
+        <p class="text-gray-500 text-sm">正常在职</p>
+        <h3 class="text-2xl font-semibold mt-1 text-success">19</h3>
+        <div class="mt-3 text-xs text-gray-500">
+          占总人数 82.6%
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow-sm p-4">
+        <p class="text-gray-500 text-sm">请假成员</p>
+        <h3 class="text-2xl font-semibold mt-1 text-warning">2</h3>
+        <div class="mt-3 text-xs text-gray-500">
+          占总人数 8.7%
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow-sm p-4">
+        <p class="text-gray-500 text-sm">离职成员</p>
+        <h3 class="text-2xl font-semibold mt-1 text-danger">2</h3>
+        <div class="mt-3 text-xs text-gray-500">
+          占总人数 8.7%
+        </div>
+      </div>
+    </div>
+    
+    <!-- 统计图表 -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <!-- 部门分布 -->
+      <div class="bg-white rounded-lg shadow-sm p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-base font-semibold">成员部门分布</h3>
+          <div class="flex space-x-2">
+            <button class="text-xs px-2 py-1 bg-primary/10 text-primary rounded">人数</button>
+            <button class="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-basic">比例</button>
+          </div>
+        </div>
+        <div class="h-64">
+          <canvas id="departmentChart"></canvas>
+        </div>
+      </div>
+      
+      <!-- 状态分布 -->
+      <div class="bg-white rounded-lg shadow-sm p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-base font-semibold">成员状态分布</h3>
+          <div class="flex space-x-2">
+            <button class="text-xs px-2 py-1 bg-primary/10 text-primary rounded">人数</button>
+            <button class="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-basic">比例</button>
+          </div>
+        </div>
+        <div class="h-64">
+          <canvas id="statusChart"></canvas>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 详细统计表格 -->
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div class="p-5 border-b border-gray-200 flex items-center justify-between">
+        <h3 class="text-base font-semibold">部门-状态详细统计</h3>
+        <div class="text-sm text-gray-500">
+          数据更新时间: 2024-06-01 10:30:00
+        </div>
+      </div>
+      
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-200">
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">部门</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">总人数</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">正常</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">请假</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">离职</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">男女比例</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">平均入职时间</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            <tr class="hover:bg-gray-50 transition-basic">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">采购部</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">5</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-success">5</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-warning">0</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-danger">0</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">3:2</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">14个月</td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-basic">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">销售部</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">8</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-success">6</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-warning">0</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-danger">2</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">5:3</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">11个月</td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-basic">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">仓储部</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">4</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-success">3</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-warning">1</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-danger">0</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">3:1</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">16个月</td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-basic">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">财务部</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">3</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-success">3</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-warning">0</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-danger">0</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">1:2</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">18个月</td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-basic">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">人事部</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">2</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-success">2</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-warning">0</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-danger">0</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">0:2</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">9个月</td>
+            </tr>
+            <tr class="hover:bg-gray-50 transition-basic">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">管理层</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">1</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-success">0</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-warning">1</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-danger">0</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">1:0</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">24个月</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 导出成功提示 -->
+  <div id="export-success-toast" class="fixed bottom-6 right-6 bg-success text-white px-4 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center z-50">
+    <i class="fa fa-check-circle mr-2"></i>
+    <span>统计数据已成功导出为Excel文件</span>
+  </div>
+  
+  <!-- JavaScript 图表初始化 -->
+  <script>
+    // 页面加载完成后初始化图表
+    document.addEventListener('DOMContentLoaded', function() {
+      // 部门分布图表
+      const departmentCtx = document.getElementById('departmentChart').getContext('2d');
+      const departmentChart = new Chart(departmentCtx, {
+        type: 'bar',
+        data: {
+          labels: ['销售部', '采购部', '仓储部', '财务部', '人事部', '管理层'],
+          datasets: [{
+            label: '成员数量',
+            data: [8, 5, 4, 3, 2, 1],
+            backgroundColor: [
+              '#2563eb',
+              '#10b981',
+              '#f59e0b',
+              '#ef4444',
+              '#8b5cf6',
+              '#64748b'
+            ],
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                precision: 0
+              }
+            }
+          }
+        }
+      });
+      
+      // 状态分布图表
+      const statusCtx = document.getElementById('statusChart').getContext('2d');
+      const statusChart = new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['正常', '请假', '离职'],
+          datasets: [{
+            data: [19, 2, 2],
+            backgroundColor: [
+              '#10b981',
+              '#f59e0b',
+              '#ef4444'
+            ],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: {
+                boxWidth: 12,
+                padding: 15
+              }
+            }
+          },
+          cutout: '65%'
+        }
+      });
+      
+      // 导出Excel按钮功能
+      document.getElementById('export-excel-btn').addEventListener('click', function() {
+        this.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> 导出中...';
+        this.disabled = true;
+        
+        // 模拟导出过程
+        setTimeout(() => {
+          this.innerHTML = '<i class="fa fa-file-excel-o mr-2"></i> 导出Excel';
+          this.disabled = false;
+          
+          // 显示成功提示
+          const toast = document.getElementById('export-success-toast');
+          toast.classList.remove('translate-y-20', 'opacity-0');
+          toast.classList.add('translate-y-0', 'opacity-100');
+          
+          // 3秒后隐藏提示
+          setTimeout(() => {
+            toast.classList.add('translate-y-20', 'opacity-0');
+            toast.classList.remove('translate-y-0', 'opacity-100');
+          }, 3000);
+        }, 1500);
+      });
+      
+      // 刷新数据按钮功能
+      document.getElementById('refresh-data-btn').addEventListener('click', function() {
+        this.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> 刷新中...';
+        this.disabled = true;
+        
+        // 模拟刷新过程
+        setTimeout(() => {
+          this.innerHTML = '<i class="fa fa-refresh mr-2"></i> 刷新数据';
+          this.disabled = false;
+          alert('数据已刷新至最新状态');
+        }, 1000);
+      });
+    });
+  </script>
+</body>
+</html>
